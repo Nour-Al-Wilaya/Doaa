@@ -122,7 +122,7 @@
     .dark-mode-toggle {
       position: absolute;
       left: 1rem;
-      top: 40%; /* تم رفع الزر قليلاً من 50% إلى 40% */
+      top: 40%;
       transform: translateY(-50%);
       background: none;
       border: none;
@@ -134,7 +134,6 @@
     body.dark-mode .dark-mode-toggle i {
       color: #fbbf24;
     }
-    /* تصحيح لون شريط البحث في الوضع الليلي */
     #searchInput {
       background-color: white;
       color: #333;
@@ -186,23 +185,45 @@
 <script>
 AOS.init({duration:800,easing:'ease-in-out',once:true});
 
-// Dark Mode Toggle
 const darkModeToggle = document.getElementById('darkModeToggle');
 const body = document.body;
 
-// لا نستخدم تفضيل النظام، نبدأ دائمًا بالوضع الفاتح
 body.classList.remove('dark-mode');
 darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
 
-// Toggle dark mode
 darkModeToggle.addEventListener('click', () => {
   body.classList.toggle('dark-mode');
   const isDark = body.classList.contains('dark-mode');
   darkModeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
 });
 
+// دالة لتحويل اسم الدعاء إلى معرف صالح للاستخدام في الرابط
+function slugify(title) {
+  return title
+    .toLowerCase()
+    .replace(/[\u0600-\u06FF]/g, c => {
+      const translit = {
+        ' ': '-', 'أ': 'a', 'إ': 'e', 'آ': 'a', 'ا': 'a', 'ب': 'b', 'ت': 't', 'ث': 'th',
+        'ج': 'j', 'ح': 'h', 'خ': 'kh', 'د': 'd', 'ذ': 'dh', 'ر': 'r', 'ز': 'z',
+        'س': 's', 'ش': 'sh', 'ص': 's', 'ض': 'd', 'ط': 't', 'ظ': 'z', 'ع': '3',
+        'غ': 'gh', 'ف': 'f', 'ق': 'q', 'ك': 'k', 'ل': 'l', 'م': 'm', 'ن': 'n',
+        'ه': 'h', 'و': 'w', 'ي': 'y', 'ى': 'a', 'ة': 'a'
+      };
+      return translit[c] || c;
+    })
+    .replace(/[^a-z0-9\-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+// دالة عكسية بسيطة (اختيارية لعرض الاسم من الرابط)
+function findDuaBySlug(slug) {
+  return duas.find(dua => slugify(dua.title) === slug);
+}
+
 const duas = [
   { title: "دعاء كميل", description: "عن الإمام علي عليه السلام – ليلة الجمعة", text: "" },
+  { title: "دعاء العهد", description: "للإمام المهدي عجل الله فرجه", text: "" },
   { title: "دعاء الندبة", description: "أيام الجمع والأعياد الأربعة – للإمام المهدي", text: "" },
   { title: "دعاء التوسل", description: "للتوسل بالنبي وأهل البيت عليهم السلام", text: "" },
   { title: "دعاء عرفة", description: "للإمام الحسين عليه السلام – يوم عرفة", text: "" },
@@ -244,7 +265,7 @@ const duas = [
   { title: "زيارة القبور العامة", description: "للمؤمنين والمؤمنات", text: "" },
   { title: "زيارة الأربعين", description: "للإمام الحسين عليه السلام", text: "" },
   { title: "زيارة عاشوراء الثانية", description: "المشهورة بزيارة أخرى", text: "" },
-  // مناجاة الإمام السجاد (القائمة الجديدة حسب الطلب)
+  // مناجاة
   { title: "مناجاة التائبين", description: "من المناجاة الخمسة عشر", text: "" },
   { title: "مناجاة الشاكين", description: "من المناجاة الخمسة عشر", text: "" },
   { title: "مناجاة الخائفين", description: "من المناجاة الخمسة عشر", text: "" },
@@ -260,7 +281,6 @@ const duas = [
   { title: "مناجاة الذاكرين", description: "من المناجاة الخمسة عشر", text: "" },
   { title: "مناجاة المعتصمين", description: "من المناجاة الخمسة عشر", text: "" },
   { title: "مناجاة الزاهدين", description: "من المناجاة الخمسة عشر", text: "" },
-  // كرت 61 فارغ
   { title: "61", description: "كرت فارغ", text: "" }
 ];
 
@@ -293,19 +313,20 @@ function openFullDuaInterface(dua) {
   document.getElementById('fullDuaDescription').textContent = dua.description || "";
   document.getElementById('fullDuaText').innerHTML = `<p>${dua.text.replace(/\n/g, '</p><p>')}</p>`;
 
-  // زر مشاركة ديناميكي
+  // تحديث الرابط ليشمل الدعاء
+  const slug = slugify(dua.title);
+  history.pushState({ dua: slug }, '', `?dua=${slug}`);
+
   const shareBtn = document.getElementById('shareDuaBtn');
   shareBtn.onclick = () => {
-    const textToShare = `دعاء: ${dua.title}\n${dua.description}\n\nمن تطبيق نور الولاية`;
+    const url = `${window.location.origin}${window.location.pathname}?dua=${slug}`;
+    const text = `دعاء: ${dua.title}\n${dua.description}\n\nمن تطبيق نور الولاية`;
+
     if (navigator.share) {
-      navigator.share({
-        title: dua.title,
-        text: dua.description,
-        url: window.location.href
-      }).catch(console.error);
+      navigator.share({ title: dua.title, text, url }).catch(console.error);
     } else {
-      navigator.clipboard.writeText(textToShare).then(() => {
-        alert('تم نسخ الدعاء إلى الحافظة!');
+      navigator.clipboard.writeText(url).then(() => {
+        alert('تم نسخ رابط الدعاء إلى الحافظة!');
       }).catch(() => {
         alert('فشل النسخ، يرجى التحديد والنسخ يدويًا.');
       });
@@ -314,6 +335,7 @@ function openFullDuaInterface(dua) {
 }
 
 function closeFullDuaInterface() {
+  history.pushState(null, '', window.location.pathname);
   document.getElementById('mainHeader').style.display = 'block';
   document.getElementById('duasContentSection').style.display = 'block';
   document.getElementById('fullDuaInterface').style.display = 'none';
@@ -326,7 +348,19 @@ document.getElementById('searchInput').addEventListener('input', e => {
   renderDuas(f);
 });
 
+// عند تحميل الصفحة، تحقق من وجود دعاء في الرابط
 window.onload = function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const duaSlug = urlParams.get('dua');
+
+  if (duaSlug) {
+    const dua = findDuaBySlug(duaSlug);
+    if (dua) {
+      openFullDuaInterface(dua);
+      return;
+    }
+  }
+
   document.getElementById('duasContentSection').style.display = 'block';
   renderDuas();
 };
@@ -335,6 +369,13 @@ document.getElementById('closeDuaBtn').onclick = e => {
   e.preventDefault();
   closeFullDuaInterface();
 };
+
+// دعم زر الرجوع في المتصفح
+window.addEventListener('popstate', (e) => {
+  if (!e.state || !e.state.dua) {
+    closeFullDuaInterface();
+  }
+});
 </script>
 </body>
 </html>
