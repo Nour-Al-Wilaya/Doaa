@@ -323,15 +323,15 @@ function openFullDuaInterface(dua) {
 
   document.getElementById('fullDuaTitle').textContent = dua.title;
   document.getElementById('fullDuaDescription').textContent = dua.description || "";
-  document.getElementById('fullDuaText').innerHTML = <p>${dua.text.replace(/\n/g, '</p><p>')}</p>;
+  document.getElementById('fullDuaText').innerHTML = `<p>${dua.text.replace(/\n/g, '</p><p>')}</p>`;
 
   const slug = slugify(dua.title);
-  history.pushState({ dua: slug }, '', ?dua=${slug});
+  history.pushState({ dua: slug }, '', `?dua=${slug}`);
 
   const shareBtn = document.getElementById('shareDuaBtn');
   shareBtn.onclick = () => {
-    const url = ${window.location.origin}${window.location.pathname}?dua=${slug};
-    const text = دعاء: ${dua.title}\n${dua.description}\n\nمن تطبيق نور الولاية;
+    const url = `${window.location.origin}${window.location.pathname}?dua=${slug}`;
+    const text = `دعاء: ${dua.title}\n${dua.description}\n\nمن تطبيق نور الولاية`;
 
     if (navigator.share) {
       navigator.share({ title: dua.title, text, url }).catch(console.error);
