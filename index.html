@@ -66,7 +66,7 @@
     .full-dua-interface {
       background: linear-gradient(to bottom, #f0f9ff, #fff);
       min-height: 100vh;
-      padding: 2rem;
+      padding: 0;
       display: none;
     }
     body.dark-mode .full-dua-interface {
@@ -75,15 +75,19 @@
     .full-dua-interface .dua-content {
       background: #fff;
       padding: 1.5rem;
-      border-radius: 16px;
-      box-shadow: 0 5px 15px rgba(0,0,0,.05);
-      max-width: 90%;
-      margin: 0 auto;
+      margin: 0;
+      width: 100%;
+      max-width: 100%;
+      border-radius: 0;
+      box-shadow: none;
     }
     @media (min-width: 768px) {
       .full-dua-interface .dua-content {
         max-width: 800px;
         padding: 2rem;
+        margin: 0 auto;
+        border-radius: 16px;
+        box-shadow: 0 5px 15px rgba(0,0,0,.05);
       }
     }
     body.dark-mode .full-dua-interface .dua-content {
